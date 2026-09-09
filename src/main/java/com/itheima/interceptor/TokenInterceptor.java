@@ -12,6 +12,12 @@ import org.springframework.web.servlet.HandlerInterceptor;
 @Slf4j
 @Component
 public class TokenInterceptor implements HandlerInterceptor {
+    private final JwtUtils jwtUtils;
+
+    public TokenInterceptor(JwtUtils jwtUtils) {
+        this.jwtUtils = jwtUtils;
+    }
+
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         //在配置文件的拦截器中配置排除"/login"路径
@@ -32,7 +38,7 @@ public class TokenInterceptor implements HandlerInterceptor {
         }
         //5.验证token
         try {
-            Claims claims = JwtUtils.parseJWT(token);
+            Claims claims = jwtUtils.parseJWT(token);
             //为aop需要的操作记录获取登录用户id
             CurrentHolder.setCurrentId(Integer.valueOf(claims.get("id").toString()));
         } catch (Exception e) {
@@ -43,5 +49,10 @@ public class TokenInterceptor implements HandlerInterceptor {
         //6.放行
         log.info("token合法，放行");
         return true;
+    }
+
+    @Override
+    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) {
+        CurrentHolder.remove();
     }
 }

@@ -27,6 +27,8 @@ public class EmpServiceImpl implements EmpService {
     private EmpExprMapper empExprMapper;
     @Autowired
     private EmpLogService empLogService;//引入逻辑层，因为事务管理是在逻辑层进行
+    @Autowired
+    private JwtUtils jwtUtils;
 
     @Override
     public PageResult<Emp> page(EmpQueryParam param) {
@@ -122,7 +124,7 @@ public class EmpServiceImpl implements EmpService {
             Map<String, Object> claims = new HashMap<>();
             claims.put("id", e.getId());
             claims.put("username", e.getUsername());
-            String jwt = JwtUtils.generateJwt(claims);
+            String jwt = jwtUtils.generateJwt(claims);
             return new LoginInfo(e.getId(), e.getUsername(), e.getName(), jwt);
         }
         return null;

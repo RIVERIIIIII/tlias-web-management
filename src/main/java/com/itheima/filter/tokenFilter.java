@@ -13,6 +13,12 @@ import java.io.IOException;
 //@WebFilter(urlPatterns = "/*")
 @Slf4j
 public class tokenFilter implements Filter {
+    private final JwtUtils jwtUtils;
+
+    public tokenFilter(JwtUtils jwtUtils) {
+        this.jwtUtils = jwtUtils;
+    }
+
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
         HttpServletRequest request = (HttpServletRequest) servletRequest;
@@ -36,7 +42,7 @@ public class tokenFilter implements Filter {
         }
         //5.验证token
         try {
-            JwtUtils.parseJWT(token);
+            jwtUtils.parseJWT(token);
         } catch (Exception e) {
             log.info("token非法，返回401状态码");
             response.setStatus(401);

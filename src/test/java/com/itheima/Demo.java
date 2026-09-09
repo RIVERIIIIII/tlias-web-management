@@ -12,15 +12,15 @@ public class Demo {
 
     public static void main(String[] args) throws Exception {
         // Endpoint以华东1（杭州）为例，其它Region请按实际情况填写。
-        String endpoint = "https://oss-cn-beijing.aliyuncs.com";
+        String endpoint = System.getenv("OSS_ENDPOINT");
         // 从环境变量中获取访问凭证。运行本代码示例之前，请确保已设置环境变量OSS_ACCESS_KEY_ID和OSS_ACCESS_KEY_SECRET。
         EnvironmentVariableCredentialsProvider credentialsProvider = CredentialsProviderFactory.newEnvironmentVariableCredentialsProvider();
         // 填写Bucket名称，例如examplebucket。
-        String bucketName = "java-ai-1820";
+        String bucketName = System.getenv("OSS_BUCKET_NAME");
         // 填写Object完整路径，完整路径中不能包含Bucket名称，例如exampledir/exampleobject.txt。
         String objectName = "001.jpg";
         // 填写Bucket所在地域。以华东1（杭州）为例，Region填写为cn-hangzhou。
-        String region = "cn-beijing";
+        String region = System.getenv("OSS_REGION");
         
         // 创建OSSClient实例。
         // 当OSSClient实例不再使用时，调用shutdown方法以释放资源。
@@ -35,7 +35,7 @@ public class Demo {
 
         try {
             // 填写字符串。
-            String filePath = "C:/Users/阿拉丁神灯/Pictures/codedog.jpg";
+            String filePath = System.getenv("OSS_TEST_FILE");
             File file = new File(filePath);
             byte[] content = Files.readAllBytes(file.toPath());//读取文件为字节数组
 
@@ -68,4 +68,4 @@ public class Demo {
             }
         }
     }
-}   
+}

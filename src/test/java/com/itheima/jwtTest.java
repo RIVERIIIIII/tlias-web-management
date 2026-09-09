@@ -1,33 +1,38 @@
 package com.itheima;
 
+import com.itheima.config.JwtProperties;
+import com.itheima.utils.JwtUtils;
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.Date;
-import java.util.List;
 import java.util.Map;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 public class jwtTest {
+    private JwtUtils jwtUtils;
+
+    @BeforeEach
+    void setUp() {
+        JwtProperties properties = new JwtProperties();
+        properties.setSignKey("MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=");
+        properties.setExpireMs(3600_000L);
+        jwtUtils = new JwtUtils(properties);
+    }
+
     @Test
     public void testGenerateJwt() {
         Map<String, Object> claims = Map.of("username", "123456");
-        String jwt = Jwts.builder()
-                .signWith(SignatureAlgorithm.HS256, "aXRoZWltYQ==")
-                .addClaims(claims)
-                .setExpiration(new Date(System.currentTimeMillis() + 3600 * 1000))
-                .compact();
-        System.out.println(jwt);
+        String jwt = jwtUtils.generateJwt(claims);
+        assertNotNull(jwt);
     }
 
     @Test
     public void testParseJwt() {
-        String token = "eyJhbGciOiJIUzI1NiJ9.eyJ1c2VybmFtZSI6IjEyMzQ1NiIsImV4cCI6MTc2MTE2MjE3Nn0.EyzliIlyM37PtxkvVbvpc4LdX4aEaV5Efx-wFniHQGs";
-        Claims body = Jwts.parser()
-                .setSigningKey("aXRoZWltYQ==")
-                .parseClaimsJws(token)
-                .getBody();
-        System.out.println(body);
+        String token = jwtUtils.generateJwt(Map.of("username", "123456"));
+        Claims body = jwtUtils.parseJWT(token);
+        assertEquals("123456", body.get("username"));
     }
 }

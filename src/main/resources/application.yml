@@ -4,9 +4,9 @@ spring:
   #mysql连接配置
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/tlias
-    username: root
-    password: 1234
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
   #文件上传配置
   servlet:
     multipart:
@@ -26,6 +26,12 @@ logging:
 #阿里云OSS配置信息
 aliyun:
   oss:
-    endpoint: https://oss-cn-beijing.aliyuncs.com
-    bucketName: java-ai-1820
-    region: cn-beijing
+    endpoint: ${OSS_ENDPOINT}
+    bucketName: ${OSS_BUCKET_NAME}
+    region: ${OSS_REGION}
+
+# JWT配置
+app:
+  jwt:
+    sign-key: ${JWT_SIGN_KEY}
+    expire-ms: ${JWT_EXPIRE_MS:43200000}
