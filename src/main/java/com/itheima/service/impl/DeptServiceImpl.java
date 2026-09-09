@@ -3,7 +3,10 @@ package com.itheima.service.impl;
 import com.itheima.mapper.DeptMapper;
 import com.itheima.pojo.Dept;
 import com.itheima.service.DeptService;
+import com.itheima.config.CacheNames;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -21,15 +24,18 @@ public class DeptServiceImpl implements DeptService {
     * */
 
     //查询部门列表
+    @Cacheable(cacheNames = CacheNames.DEPT_LIST, key = "'all'", sync = true)
     public List<Dept> findAll() {
         return deptMapper.findAll();
     }
     //删除部门信息
+    @CacheEvict(cacheNames = CacheNames.DEPT_LIST, allEntries = true)
     @Override
     public void deleteById(Integer id) {
         deptMapper.deleteById(id);
     }
     //添加部门信息
+    @CacheEvict(cacheNames = CacheNames.DEPT_LIST, allEntries = true)
     @Override
     public void add(Dept dept) {
         //补全基础属性
@@ -45,6 +51,7 @@ public class DeptServiceImpl implements DeptService {
         return dept;
     }
     //修改部门信息
+    @CacheEvict(cacheNames = CacheNames.DEPT_LIST, allEntries = true)
     @Override
     public void update(Dept dept) {
         //补全基础属性

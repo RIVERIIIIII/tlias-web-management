@@ -1,11 +1,13 @@
 package com.itheima.service.impl;
 
+import com.itheima.config.CacheNames;
 import com.itheima.mapper.EmpMapper;
 import com.itheima.mapper.StudentMapper;
 import com.itheima.pojo.JobOption;
 import com.itheima.pojo.StudentCount;
 import com.itheima.service.ReportService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,6 +20,7 @@ public class ReportServiceImpl implements ReportService {
     @Autowired
     StudentMapper studentMapper;
     @Override
+    @Cacheable(cacheNames = CacheNames.REPORT, key = "'empJob'", sync = true)
     public JobOption getEmpJobData() {
         List<Map> list = empMapper.countEmpJobData();
         //封装数据（map是双列集合，无法使用stream）
@@ -27,11 +30,13 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
+    @Cacheable(cacheNames = CacheNames.REPORT, key = "'empGender'", sync = true)
     public List<Map> getEmpGenderData() {
         return empMapper.countEmpGenderData();
     }
 
     @Override
+    @Cacheable(cacheNames = CacheNames.REPORT, key = "'studentCount'", sync = true)
     public StudentCount getStudentCountData() {
         List<Map> list = studentMapper.getStudentCountData();
         //封装数据
@@ -41,6 +46,7 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
+    @Cacheable(cacheNames = CacheNames.REPORT, key = "'studentDegree'", sync = true)
     public List<Map> getStudentDegreeData() {
         return studentMapper.getStudentDegreeData();
     }

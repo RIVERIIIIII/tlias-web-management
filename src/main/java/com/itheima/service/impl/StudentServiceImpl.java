@@ -2,12 +2,14 @@ package com.itheima.service.impl;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.itheima.config.CacheNames;
 import com.itheima.mapper.StudentMapper;
 import com.itheima.pojo.PageResult;
 import com.itheima.pojo.Student;
 import com.itheima.pojo.StudentQueryParam;
 import com.itheima.service.StudentService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -31,6 +33,7 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
+    @CacheEvict(cacheNames = CacheNames.REPORT, allEntries = true)
     public void save(@RequestBody Student student) {
         //补全基础属性（违纪次数和违纪扣分已经在mysql设置了默认值）
         student.setCreateTime(LocalDateTime.now());
@@ -47,6 +50,7 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
+    @CacheEvict(cacheNames = CacheNames.REPORT, allEntries = true)
     public void updateById(Student student) {
         //更新基础属性
         student.setUpdateTime(LocalDateTime.now());
@@ -55,12 +59,14 @@ public class StudentServiceImpl implements StudentService {
     }
 
     @Override
+    @CacheEvict(cacheNames = CacheNames.REPORT, allEntries = true)
     public void deleteByIds(List<Integer> ids) {
         //批量删除学生
         studentMapper.deleteByIds(ids);
     }
 
     @Override
+    @CacheEvict(cacheNames = CacheNames.REPORT, allEntries = true)
     public void violation(Integer id, Integer score) {
         studentMapper.violation(id, score);
     }

@@ -2,6 +2,7 @@ package com.itheima.service.impl;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.itheima.config.CacheNames;
 import com.itheima.mapper.EmpExprMapper;
 import com.itheima.mapper.EmpMapper;
 import com.itheima.pojo.*;
@@ -10,6 +11,9 @@ import com.itheima.service.EmpService;
 import com.itheima.utils.JwtUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -42,6 +46,7 @@ public class EmpServiceImpl implements EmpService {
     }
 
     @Transactional(rollbackFor = {Exception.class})
+    @CacheEvict(cacheNames = CacheNames.REPORT, allEntries = true)
     //在多次进行数据库操作的方法中，加上事务注解
     // rollbackFor = {Exception.class} ：指定发生所有异常时都回滚事务，默认只有发生运行时异常时回滚事务
     @Override
@@ -73,6 +78,10 @@ public class EmpServiceImpl implements EmpService {
     }
 
     @Transactional(rollbackFor = {Exception.class})
+    @Caching(evict = {
+            @CacheEvict(cacheNames = CacheNames.EMP_DETAIL, allEntries = true),
+            @CacheEvict(cacheNames = CacheNames.REPORT, allEntries = true)
+    })
     @Override
     public void deleteByIds(List<Integer> ids) {
         //批量删除员工
@@ -82,12 +91,17 @@ public class EmpServiceImpl implements EmpService {
     }
 
     @Override
+    @Cacheable(cacheNames = CacheNames.EMP_DETAIL, key = "#id", unless = "#result == null")
     public Emp getInfo(Integer id) {
         Emp emp = empMapper.getById(id);
         return emp;
     }
 
     @Transactional(rollbackFor = {Exception.class})//在多次进行数据库操作的方法中，加上事务注解
+    @Caching(evict = {
+            @CacheEvict(cacheNames = CacheNames.EMP_DETAIL, key = "#emp.id"),
+            @CacheEvict(cacheNames = CacheNames.REPORT, allEntries = true)
+    })
     @Override
     public void update(Emp emp) {
         //1.根据ID更新员工基本信息
