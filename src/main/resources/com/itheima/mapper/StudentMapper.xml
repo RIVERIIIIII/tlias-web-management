@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.itheima.mapper.StudentMapper">
+    <insert id="insert">
+        INSERT INTO student
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            name,
+            no,
+            gender,
+            phone,
+            id_card,
+            degree,
+            clazz_id,
+            create_time,
+            update_time,
+            <if test="isCollege != null">is_college,</if>
+            <if test="address != null and address != ''">address,</if>
+            <if test="graduationDate != null">graduation_date,</if>
+        </trim>
+        <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
+            #{name},
+            #{no},
+            #{gender},
+            #{phone},
+            #{idCard},
+            #{degree},
+            #{clazzId},
+            #{createTime},
+            #{updateTime},
+            <if test="isCollege != null">#{isCollege},</if>
+            <if test="address != null and address != ''">#{address},</if>
+            <if test="graduationDate != null">#{graduationDate},</if>
+        </trim>
+    </insert>
+    <update id="updateById">
+        UPDATE student
+        <set>
+            <if test="name != null  and name != ''">name = #{name},</if>
+            <if test="no != null">no = #{no},</if>
+            <if test="gender != null">gender = #{gender},</if>
+            <if test="phone != null">phone = #{phone},</if>
+            <if test="degree != null">degree = #{degree},</if>
+            <if test="idCard != null">id_card = #{idCard},</if>
+            <if test="isCollege != null">is_college = #{isCollege},</if>
+            <if test="address != null and address != ''">address = #{address},</if>
+            <if test="graduationDate != null">graduation_date = #{graduationDate},</if>
+            <if test="violationCount != null">violation_count = #{violationCount},</if>
+            <if test="violationScore != null">violation_score = #{violationScore},</if>
+            <if test="clazzId != null">clazz_id = #{clazzId},</if>
+        </set>
+        where id = #{id}
+    </update>
+    <delete id="deleteByIds">
+        DELETE FROM student
+        WHERE id IN
+        <foreach collection="ids" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </delete>
+
+    <select id="list" resultType="com.itheima.pojo.Student">
+        select s.*, c.name clazz_name from student s left outer join clazz c on s.clazz_id = c.id
+        <where>
+            <if test="name != null and name != ''">
+                and s.name like concat('%',#{name},'%')
+            </if>
+            <if test="degree != null">
+                and s.degree = #{degree}
+            </if>
+            <if test="clazzId != null">
+                and s.clazz_id = #{clazzId}
+            </if>
+        </where>
+        order by s.no
+    </select>
+    <select id="getStudentCountData" resultType="java.util.Map">
+        SELECT
+            CASE
+                WHEN clazz_id = 1 THEN 'JavaEE就业163期'
+                WHEN clazz_id = 2 THEN '前端就业90期'
+                WHEN clazz_id = 3 THEN 'JavaEE就业165期'
+                WHEN clazz_id = 4 THEN 'JavaEE就业166期'
+                WHEN clazz_id = 5 THEN '大数据就业58期'
+                WHEN clazz_id = 6 THEN 'JavaEE就业167期'
+                WHEN clazz_id = 7 THEN 'JavaEE就业168期'
+                ELSE '其他'
+                END AS clazz,
+            COUNT(1) AS total
+        FROM student
+        GROUP BY clazz_id
+        ORDER BY total DESC;
+    </select>
+    <select id="getStudentDegreeData" resultType="java.util.Map">
+        SELECT
+            CASE
+                WHEN degree = 1 THEN '初中'
+                WHEN degree = 2 THEN '高中'
+                WHEN degree = 3 THEN '大专'
+                WHEN degree = 4 THEN '本科'
+                WHEN degree = 5 THEN '硕士'
+                WHEN degree = 6 THEN '博士'
+                ELSE '其他'
+                END AS name,
+            COUNT(1) AS value
+        FROM student
+        GROUP BY degree
+        ORDER BY value DESC;
+    </select>
+</mapper>

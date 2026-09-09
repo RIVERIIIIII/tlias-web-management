@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.itheima.mapper.EmpExprMapper">
+
+    <!--批量插入员工工作经历
+    <foreach> 标签：循环集合中的元素
+    常见的属性说明：
+    1. collection：集合名称
+    2. item：集合遍历出来的元素/项
+    3. separator：每一次遍历使用的分隔符
+    4. open：遍历开始前拼接的片段
+    5. close：遍历结束后拼接的片段-->
+    <insert id="insertBatch">
+        insert into emp_expr (emp_id, begin, end, company, job)
+        <foreach collection="exprList" item="expr" separator="," open="values" close="">
+            (#{expr.empId}, #{expr.begin}, #{expr.end}, #{expr.company}, #{expr.job})
+        </foreach>
+    </insert>
+    <delete id="deleteByEmpIds">
+        /*批量删除使用动态sql语句*/
+        delete from emp_expr where emp_id in
+        <foreach collection="empIds" item="empId" separator="," open="(" close=")">
+                #{empId}
+        </foreach>
+    </delete>
+</mapper>
