@@ -141,7 +141,10 @@ token: <登录返回的JWT>
 普通业务缓存故障时可以回退 MySQL；JWT 会话存储故障时不能安全确认令牌是否已撤销，
 所以登录和鉴权会返回 HTTP 503。升级前签发的旧令牌没有服务端会话记录，升级后需要重新登录。
 
-详细设计和验证步骤见 `docs/jwt-session-design.md`。
+相关文档：
+
+- [JWT 持久化学习指南](docs/jwt-session-learning.md)：原理、源码阅读顺序、实验和自测题；
+- [JWT 持久化会话设计](docs/jwt-session-design.md)：实现方案、安全取舍和验证步骤。
 
 ## 运行测试
 
