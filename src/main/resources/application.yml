@@ -45,3 +45,4 @@ app:
   jwt:
     sign-key: ${JWT_SIGN_KEY}
     expire-ms: ${JWT_EXPIRE_MS:43200000}
+    session-key-prefix: ${JWT_SESSION_KEY_PREFIX:tlias:auth:session:}

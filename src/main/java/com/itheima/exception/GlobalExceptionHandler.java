@@ -4,7 +4,9 @@ import com.itheima.pojo.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.sql.SQLIntegrityConstraintViolationException;
@@ -13,6 +15,13 @@ import java.util.DuplicateFormatFlagsException;
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+    @ExceptionHandler(JwtSessionUnavailableException.class)
+    @ResponseStatus(HttpStatus.SERVICE_UNAVAILABLE)
+    public Result handleJwtSessionUnavailableException(JwtSessionUnavailableException e) {
+        log.warn("JWT会话存储不可用", e);
+        return Result.error("登录服务暂时不可用，请稍后重试");
+    }
+
     //处理全局异常
     @ExceptionHandler
     public Result handleException(Exception e){

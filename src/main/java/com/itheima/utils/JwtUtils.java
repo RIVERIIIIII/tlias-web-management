@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Date;
 import java.util.Map;
+import java.util.UUID;
 
 @Component
 public class JwtUtils {
@@ -23,10 +24,13 @@ public class JwtUtils {
      * @return
      */
     public String generateJwt(Map<String,Object> claims){
+        Date issuedAt = new Date();
         String jwt = Jwts.builder()
                 .addClaims(claims)
+                .setId(UUID.randomUUID().toString())
+                .setIssuedAt(issuedAt)
                 .signWith(SignatureAlgorithm.HS256, properties.getSignKey())
-                .setExpiration(new Date(System.currentTimeMillis() + properties.getExpireMs()))
+                .setExpiration(new Date(issuedAt.getTime() + properties.getExpireMs()))
                 .compact();
         return jwt;
     }

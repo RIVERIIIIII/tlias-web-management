@@ -20,7 +20,7 @@ public class LoginController {
 
     @PostMapping
     public Result login(@RequestBody Emp  emp) {
-        log.info("用户登录：{}", emp);
+        log.info("用户登录，用户名：{}", emp.getUsername());
         LoginInfo info = empService.login(emp);
         if (info != null)
             return Result.success(info);

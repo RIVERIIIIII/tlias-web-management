@@ -8,7 +8,9 @@ import com.itheima.mapper.EmpMapper;
 import com.itheima.pojo.*;
 import com.itheima.service.EmpLogService;
 import com.itheima.service.EmpService;
+import com.itheima.service.JwtSessionService;
 import com.itheima.utils.JwtUtils;
+import io.jsonwebtoken.Claims;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
@@ -33,6 +35,8 @@ public class EmpServiceImpl implements EmpService {
     private EmpLogService empLogService;//引入逻辑层，因为事务管理是在逻辑层进行
     @Autowired
     private JwtUtils jwtUtils;
+    @Autowired
+    private JwtSessionService jwtSessionService;
 
     @Override
     public PageResult<Emp> page(EmpQueryParam param) {
@@ -139,6 +143,8 @@ public class EmpServiceImpl implements EmpService {
             claims.put("id", e.getId());
             claims.put("username", e.getUsername());
             String jwt = jwtUtils.generateJwt(claims);
+            Claims jwtClaims = jwtUtils.parseJWT(jwt);
+            jwtSessionService.createSession(jwt, jwtClaims);
             return new LoginInfo(e.getId(), e.getUsername(), e.getName(), jwt);
         }
         return null;

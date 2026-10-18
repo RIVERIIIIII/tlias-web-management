@@ -10,4 +10,5 @@ import org.springframework.stereotype.Component;
 public class JwtProperties {
     private String signKey;
     private Long expireMs;
+    private String sessionKeyPrefix = "tlias:auth:session:";
 }

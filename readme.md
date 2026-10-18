@@ -63,6 +63,7 @@ $env:REDIS_TIMEOUT="2s"
 $jwtBytes = [byte[]](1..32 | ForEach-Object { Get-Random -Maximum 256 })
 $env:JWT_SIGN_KEY = [Convert]::ToBase64String($jwtBytes)
 $env:JWT_EXPIRE_MS="43200000"
+$env:JWT_SESSION_KEY_PREFIX="tlias:auth:session:"
 
 $env:OSS_ENDPOINT="https://oss-cn-beijing.aliyuncs.com"
 $env:OSS_BUCKET_NAME="你的Bucket名称"
@@ -117,6 +118,31 @@ Redis 不可用时，缓存异常会被记录为 WARN 日志，查询继续回�
 
 详细设计和验证步骤见 `docs/cache-design.md`。
 
+## JWT 持久化会话
+
+登录成功后，JWT 会包含唯一的 `jti` 和签发时间。服务端以
+`tlias:auth:session:<jti>` 为键，将令牌的 SHA-256 摘要写入 Redis，TTL 与 JWT
+剩余有效期一致；Redis 不保存原始 JWT。每个受保护请求必须同时满足：
+
+1. JWT 签名和有效期正确；
+2. Redis 会话存在；
+3. 请求令牌的摘要与 Redis 中的摘要一致。
+
+退出登录时调用：
+
+```http
+POST /logout
+token: <登录返回的JWT>
+```
+
+服务端会删除当前 `jti` 对应的 Redis 会话，令牌立即失效。同一账号多次登录会生成不同
+`jti`，因此默认支持多设备会话，退出只影响当前设备。
+
+普通业务缓存故障时可以回退 MySQL；JWT 会话存储故障时不能安全确认令牌是否已撤销，
+所以登录和鉴权会返回 HTTP 503。升级前签发的旧令牌没有服务端会话记录，升级后需要重新登录。
+
+详细设计和验证步骤见 `docs/jwt-session-design.md`。
+
 ## 运行测试
 
 ```powershell
@@ -128,6 +154,7 @@ mvn clean test
 ## 主要接口模块
 
 - `/login`：用户登录
+- `/logout`：退出当前登录会话
 - `/depts`：部门管理
 - `/emps`：员工及工作经历管理
 - `/clazzs`：班级管理

@@ -1,5 +1,7 @@
 package com.itheima.interceptor;
 
+import com.itheima.exception.JwtSessionUnavailableException;
+import com.itheima.service.JwtSessionService;
 import com.itheima.utils.CurrentHolder;
 import com.itheima.utils.JwtUtils;
 import io.jsonwebtoken.Claims;
@@ -13,9 +15,11 @@ import org.springframework.web.servlet.HandlerInterceptor;
 @Component
 public class TokenInterceptor implements HandlerInterceptor {
     private final JwtUtils jwtUtils;
+    private final JwtSessionService jwtSessionService;
 
-    public TokenInterceptor(JwtUtils jwtUtils) {
+    public TokenInterceptor(JwtUtils jwtUtils, JwtSessionService jwtSessionService) {
         this.jwtUtils = jwtUtils;
+        this.jwtSessionService = jwtSessionService;
     }
 
     @Override
@@ -39,8 +43,17 @@ public class TokenInterceptor implements HandlerInterceptor {
         //5.验证token
         try {
             Claims claims = jwtUtils.parseJWT(token);
+            if (!jwtSessionService.isActive(token, claims)) {
+                log.info("token会话不存在或已退出，返回401状态码");
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                return false;
+            }
             //为aop需要的操作记录获取登录用户id
             CurrentHolder.setCurrentId(Integer.valueOf(claims.get("id").toString()));
+        } catch (JwtSessionUnavailableException e) {
+            log.warn("JWT会话存储不可用，返回503状态码", e);
+            response.setStatus(HttpServletResponse.SC_SERVICE_UNAVAILABLE);
+            return false;
         } catch (Exception e) {
             log.info("token非法，返回401状态码");
             response.setStatus(401);

@@ -10,6 +10,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 public class jwtTest {
     private JwtUtils jwtUtils;
@@ -34,5 +35,9 @@ public class jwtTest {
         String token = jwtUtils.generateJwt(Map.of("username", "123456"));
         Claims body = jwtUtils.parseJWT(token);
         assertEquals("123456", body.get("username"));
+        assertNotNull(body.getId());
+        assertFalse(body.getId().isBlank());
+        assertNotNull(body.getIssuedAt());
+        assertNotNull(body.getExpiration());
     }
 }
